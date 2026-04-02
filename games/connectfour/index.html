@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connect Four</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #07070f;
+      --accent: #bf5fff;
+      --p1: #ff2d55;
+      --p2: #ffd700;
+      --board-bg: #1a1a3e;
+      --cell-empty: #1d1d38;
+      --text: #e0e0ff;
+      --text-dim: #7070a0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Back link */
+    #back-link {
+      position: fixed;
+      top: 18px;
+      left: 22px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.85;
+      transition: opacity 0.2s;
+      z-index: 100;
+    }
+    #back-link:hover { opacity: 1; }
+    #back-link::before { content: '←'; font-size: 1.1em; }
+
+    /* Header */
+    header {
+      margin-top: 60px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      background: linear-gradient(135deg, var(--accent), #ff80ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+    }
+
+    /* Score */
+    #scoreboard {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      align-items: center;
+      margin: 16px 0 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .score-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .score-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+    .score-value {
+      font-size: 1.6rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .score-p1 { color: var(--p1); }
+    .score-p2 { color: var(--p2); }
+    .score-draw { color: var(--text-dim); }
+    .score-sep {
+      color: var(--text-dim);
+      font-size: 1.4rem;
+      font-weight: 300;
+      align-self: center;
+    }
+
+    /* Match label */
+    #match-label {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    /* Main game area */
+    #game-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin: 6px 0 30px;
+    }
+
+    /* Current player */
+    #player-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      min-height: 28px;
+    }
+    #player-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      transition: background 0.25s, box-shadow 0.25s;
+    }
+
+    /* Board wrapper */
+    #board-wrapper {
+      position: relative;
+    }
+
+    /* Hover row above the board */
+    #hover-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      padding: 0 8px;
+      margin-bottom: 4px;
+      height: 36px;
+    }
+    .hover-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hover-disc {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.15s;
+      pointer-events: none;
+    }
+
+    /* Board */
+    #board {
+      background: var(--board-bg);
+      border-radius: 14px;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+      gap: 6px;
+      box-shadow:
+        0 0 0 3px rgba(191, 95, 255, 0.35),
+        0 8px 40px rgba(0,0,0,0.7),
+        inset 0 0 30px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cell {
+      width: clamp(44px, 8vw, 64px);
+      height: clamp(44px, 8vw, 64px);
+      border-radius: 50%;
+      background: var(--cell-empty);
+      box-shadow: inset 0 3px 8px rgba(0,0,0,0.55);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.15s;
+    }
+    .cell:hover {
+      filter: brightness(1.15);
+    }
+
+    .cell .disc {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      opacity: 0;
+    }
+    .cell.p1 .disc { background: var(--p1); opacity: 1; }
+    .cell.p2 .disc { background: var(--p2); opacity: 1; }
+
+    /* Disc highlight shimmer */
+    .cell.p1 .disc::after,
+    .cell.p2 .disc::after {
+      content: '';
+      position: absolute;
+      top: 8%;
+      left: 15%;
+      width: 35%;
+      height: 28%;
+      background: rgba(255,255,255,0.28);
+      border-radius: 50%;
+      filter: blur(2px);
+    }
+
+    /* Drop animation */
+    @keyframes drop-in {
+      0%   { transform: translateY(var(--drop-start)); opacity: 1; }
+      75%  { transform: translateY(4px); }
+      88%  { transform: translateY(-6px); }
+      100% { transform: translateY(0); }
+    }
+    .cell.dropping .disc {
+      animation: drop-in 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    /* Win glow */
+    @keyframes win-pulse {
+      0%, 100% { box-shadow: 0 0 0 3px #fff, 0 0 18px 6px rgba(255,255,255,0.5); }
+      50%       { box-shadow: 0 0 0 4px #fff, 0 0 32px 12px rgba(255,255,255,0.8); }
+    }
+    .cell.winner {
+      animation: win-pulse 0.8s ease-in-out infinite;
+      z-index: 2;
+    }
+
+    /* Status message */
+    #status-message {
+      min-height: 38px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.05em;
+      padding: 4px 16px;
+    }
+
+    /* Match win */
+    @keyframes match-win-bounce {
+      0%   { transform: scale(0.6); opacity: 0; }
+      60%  { transform: scale(1.12); }
+      80%  { transform: scale(0.96); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    #status-message.match-won {
+      animation: match-win-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      font-size: 1.3rem;
+    }
+
+    /* Buttons */
+    .action-btn {
+      background: linear-gradient(135deg, var(--accent), #8b2fcc);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 28px;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(191,95,255,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(191,95,255,0.6);
+    }
+    .action-btn:active { transform: translateY(0); }
+
+    #btn-area {
+      min-height: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Best-of pips */
+    #match-pips {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .pips-group {
+      display: flex;
+      gap: 5px;
+    }
+    .pip {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid;
+      transition: background 0.3s;
+    }
+    .pip.p1 { border-color: var(--p1); }
+    .pip.p1.filled { background: var(--p1); }
+    .pip.p2 { border-color: var(--p2); }
+    .pip.p2.filled { background: var(--p2); }
+
+    /* Disabled board */
+    #board.disabled { pointer-events: none; }
+  </style>
+</head>
+<body>
+  <a id="back-link" href="../../index.html">Back</a>
+
+  <header>
+    <h1>Connect Four</h1>
+  </header>
+
+  <div id="scoreboard">
+    <div class="score-item">
+      <span class="score-label">Player 1</span>
+      <span class="score-value score-p1" id="score-p1">0</span>
+    </div>
+    <div class="score-sep">·</div>
+    <div class="score-item">
+      <span class="score-label">Draws</span>
+      <span class="score-value score-draw" id="score-draw">0</span>
+    </div>
+    <div class="score-sep">·</div>
+    <div class="score-item">
+      <span class="score-label">Player 2</span>
+      <span class="score-value score-p2" id="score-p2">0</span>
+    </div>
+  </div>
+
+  <div id="match-label">Best of 5 — First to 3 wins</div>
+
+  <div id="match-pips">
+    <div class="pips-group" id="pips-p1">
+      <div class="pip p1" data-pip="0"></div>
+      <div class="pip p1" data-pip="1"></div>
+      <div class="pip p1" data-pip="2"></div>
+    </div>
+    <span style="color:var(--text-dim);font-size:0.8rem;align-self:center;">VS</span>
+    <div class="pips-group" id="pips-p2">
+      <div class="pip p2" data-pip="0"></div>
+      <div class="pip p2" data-pip="1"></div>
+      <div class="pip p2" data-pip="2"></div>
+    </div>
+  </div>
+
+  <div id="game-area">
+    <div id="player-indicator">
+      <div id="player-dot"></div>
+      <span id="player-text">Player 1's turn</span>
+    </div>
+
+    <div id="board-wrapper">
+      <div id="hover-row"></div>
+      <div id="board"></div>
+    </div>
+
+    <div id="status-message"></div>
+    <div id="btn-area"></div>
+  </div>
+
+  <script src="connectfour.js"></script>
+</body>
+</html>

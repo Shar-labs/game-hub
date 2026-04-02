@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic Tac Toe – Game Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #07070f;
+      --bg2: #0e0e1f;
+      --bg3: #16162e;
+      --gold: #ffd700;
+      --gold-dim: #b89a00;
+      --cyan: #00aaff;
+      --cyan-dim: #006fa8;
+      --text: #e8e8f0;
+      --text-dim: #888899;
+      --border: #2a2a4a;
+      --cell-bg: #0d0d20;
+      --cell-hover: #151530;
+      --shadow-gold: 0 0 20px rgba(255, 215, 0, 0.5);
+      --shadow-cyan: 0 0 20px rgba(0, 170, 255, 0.5);
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(255,215,0,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(0,170,255,0.04) 0%, transparent 50%),
+        var(--bg);
+    }
+
+    /* Back link */
+    #back-link {
+      position: fixed;
+      top: 18px;
+      left: 22px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+      z-index: 100;
+    }
+    #back-link:hover { color: var(--gold); }
+    #back-link svg { width: 16px; height: 16px; }
+
+    /* Main container */
+    #game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding-top: 60px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    /* Title */
+    h1 {
+      font-family: 'Bebas Neue', 'Impact', sans-serif;
+      font-size: clamp(52px, 10vw, 80px);
+      letter-spacing: 0.12em;
+      background: linear-gradient(135deg, var(--gold) 0%, #fff8c0 40%, var(--gold) 70%, #ffaa00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      line-height: 1;
+      filter: drop-shadow(0 0 30px rgba(255,215,0,0.3));
+    }
+
+    /* Scoreboard */
+    #scoreboard {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      width: 100%;
+    }
+    .score-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 10px;
+      gap: 4px;
+    }
+    .score-block:nth-child(2) {
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .score-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .score-label.p1 { color: var(--gold); }
+    .score-label.p2 { color: var(--cyan); }
+    .score-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      line-height: 1;
+      color: var(--text);
+      transition: transform 0.3s, color 0.3s;
+    }
+    .score-value.bump {
+      animation: scoreBump 0.4s ease;
+    }
+    @keyframes scoreBump {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.5); }
+      100% { transform: scale(1); }
+    }
+
+    /* Turn indicator */
+    #turn-indicator {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      transition: color 0.3s;
+      text-transform: uppercase;
+    }
+    #turn-indicator.p1 { color: var(--gold); }
+    #turn-indicator.p2 { color: var(--cyan); }
+
+    /* Round info */
+    #round-info {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* Grid */
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: 420px;
+      height: 420px;
+      padding: 8px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      position: relative;
+    }
+
+    .cell {
+      background: var(--cell-bg);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .cell:hover:not(.taken) {
+      background: var(--cell-hover);
+      border-color: #3a3a6a;
+    }
+    .cell:active:not(.taken) {
+      transform: scale(0.94);
+    }
+    .cell.taken { cursor: default; }
+
+    /* Click bounce animation */
+    .cell.bounce {
+      animation: cellBounce 0.35s ease;
+    }
+    @keyframes cellBounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(0.88); }
+      65% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    /* Win glow */
+    .cell.win-x {
+      background: rgba(255, 215, 0, 0.08);
+      border-color: var(--gold);
+      animation: glowX 1s ease-in-out infinite alternate;
+    }
+    .cell.win-o {
+      background: rgba(0, 170, 255, 0.08);
+      border-color: var(--cyan);
+      animation: glowO 1s ease-in-out infinite alternate;
+    }
+    @keyframes glowX {
+      from { box-shadow: 0 0 8px rgba(255,215,0,0.4), inset 0 0 8px rgba(255,215,0,0.1); }
+      to   { box-shadow: 0 0 24px rgba(255,215,0,0.8), inset 0 0 16px rgba(255,215,0,0.2); }
+    }
+    @keyframes glowO {
+      from { box-shadow: 0 0 8px rgba(0,170,255,0.4), inset 0 0 8px rgba(0,170,255,0.1); }
+      to   { box-shadow: 0 0 24px rgba(0,170,255,0.8), inset 0 0 16px rgba(0,170,255,0.2); }
+    }
+
+    /* Draw shake */
+    .cell.shake {
+      animation: cellShake 0.5s ease;
+    }
+    @keyframes cellShake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+
+    /* SVG marks */
+    .mark-svg {
+      width: 75%;
+      height: 75%;
+      overflow: visible;
+    }
+
+    /* X lines */
+    .x-line {
+      stroke: var(--gold);
+      stroke-width: 10;
+      stroke-linecap: round;
+      fill: none;
+      stroke-dasharray: 120;
+      stroke-dashoffset: 120;
+      animation: drawLine 0.3s ease forwards;
+    }
+    .x-line:nth-child(2) { animation-delay: 0.15s; }
+    @keyframes drawLine {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* O circle */
+    .o-circle {
+      stroke: var(--cyan);
+      stroke-width: 10;
+      stroke-linecap: round;
+      fill: none;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      animation: drawCircle 0.4s ease forwards;
+    }
+    @keyframes drawCircle {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* Status message */
+    #status-msg {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      min-height: 24px;
+      text-align: center;
+      transition: opacity 0.3s;
+    }
+    #status-msg.win-msg { color: var(--gold); }
+    #status-msg.draw-msg { color: var(--text-dim); }
+    #status-msg.match-msg {
+      font-size: 20px;
+      color: var(--gold);
+      animation: flashText 0.6s ease infinite alternate;
+    }
+    @keyframes flashText {
+      from { opacity: 1; filter: drop-shadow(0 0 8px var(--gold)); }
+      to   { opacity: 0.6; filter: drop-shadow(0 0 2px var(--gold)); }
+    }
+
+    /* Buttons */
+    #controls {
+      display: flex;
+      gap: 12px;
+    }
+    .btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      background: var(--bg2);
+      color: var(--text-dim);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(255,215,0,0.05);
+      box-shadow: 0 0 12px rgba(255,215,0,0.2);
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn.primary {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* Keyboard hint */
+    #kb-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      opacity: 0.6;
+    }
+
+    /* Confetti canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Responsive */
+    @media (max-width: 460px) {
+      #board { width: 320px; height: 320px; }
+      h1 { font-size: 52px; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="../../index.html" id="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Back
+  </a>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <div id="game-container">
+    <h1>Tic Tac Toe</h1>
+
+    <div id="scoreboard">
+      <div class="score-block">
+        <div class="score-label p1">P1 (X)</div>
+        <div class="score-value" id="score-p1">0</div>
+      </div>
+      <div class="score-block">
+        <div class="score-label">Draws</div>
+        <div class="score-value" id="score-draws">0</div>
+      </div>
+      <div class="score-block">
+        <div class="score-label p2">P2 (O)</div>
+        <div class="score-value" id="score-p2">0</div>
+      </div>
+    </div>
+
+    <div id="turn-indicator" class="p1">Player 1's Turn (X)</div>
+    <div id="round-info">Round 1 · Best of 5</div>
+
+    <div id="board" role="grid" aria-label="Tic Tac Toe Board"></div>
+
+    <div id="status-msg"></div>
+
+    <div id="controls">
+      <button class="btn" id="btn-new-round">New Round</button>
+      <button class="btn primary" id="btn-new-match">New Match</button>
+    </div>
+
+    <div id="kb-hint">Keyboard: 7 8 9 / 4 5 6 / 1 2 3 (numpad layout) · Click to play</div>
+  </div>
+
+  <script src="tictactoe.js"></script>
+</body>
+</html>

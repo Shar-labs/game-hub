@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Top-Down Racing — GameHub</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a14;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    #back-link {
+      position: fixed;
+      top: 14px;
+      left: 18px;
+      color: #00aaff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      z-index: 100;
+      background: rgba(0,0,0,0.55);
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #00aaff44;
+      transition: background 0.2s;
+    }
+    #back-link:hover { background: rgba(0,170,255,0.18); }
+    h1 {
+      margin: 18px 0 8px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #fff;
+      text-shadow: 0 0 18px #00aaff88;
+    }
+    #subtitle {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    #canvas-wrapper {
+      position: relative;
+      border: 2px solid #00aaff33;
+      border-radius: 6px;
+      box-shadow: 0 0 40px #00aaff22, 0 4px 32px rgba(0,0,0,0.7);
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+    #controls-info {
+      margin-top: 12px;
+      display: flex;
+      gap: 36px;
+      font-size: 12px;
+      color: #666;
+    }
+    .ctrl-p1 { color: #00aaff; }
+    .ctrl-p2 { color: #ff8c00; }
+    .ctrl-key {
+      display: inline-block;
+      background: #222;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <a href="../../index.html" id="back-link">← Back</a>
+  <h1>🏁 TOP-DOWN RACING</h1>
+  <div id="subtitle">2 PLAYERS · 3 LAPS · NO MERCY</div>
+  <div id="canvas-wrapper">
+    <canvas id="gameCanvas" width="900" height="600"></canvas>
+  </div>
+  <div id="controls-info">
+    <span class="ctrl-p1">
+      P1 (Cyan): <span class="ctrl-key">W</span> Throttle &nbsp;
+      <span class="ctrl-key">S</span> Brake &nbsp;
+      <span class="ctrl-key">A</span>/<span class="ctrl-key">D</span> Steer
+    </span>
+    <span class="ctrl-p2">
+      P2 (Orange): <span class="ctrl-key">↑</span> Throttle &nbsp;
+      <span class="ctrl-key">↓</span> Brake &nbsp;
+      <span class="ctrl-key">←</span>/<span class="ctrl-key">→</span> Steer
+    </span>
+  </div>
+  <script src="racing.js"></script>
+</body>
+</html>

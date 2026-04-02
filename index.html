@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎮 GAME HUB</title>
+  <link rel="stylesheet" href="styles/hub.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Scanline overlay (pure CSS) -->
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- ───────────────── HERO ───────────────── -->
+  <header class="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <h1 class="hub-title" data-text="GAME HUB">GAME HUB</h1>
+    <p class="hub-sub">6 GAMES + MYSTERY SPIN &nbsp;·&nbsp; 2 PLAYERS &nbsp;·&nbsp; CHOOSE YOUR BATTLE</p>
+    <div class="lang-badges">
+      <span>HTML</span><span>CSS</span><span>SCSS</span><span>JS</span>
+      <span>TypeScript</span><span>Python</span><span>Rust</span>
+      <span>Java</span><span>Bash</span><span>JSON</span><span>SVG</span>
+    </div>
+  </header>
+
+  <!-- ───────────────── GRID ───────────────── -->
+  <main class="game-grid">
+
+    <!-- Boxing -->
+    <a href="games/boxing/index.html" class="game-card card-boxing" tabindex="0">
+      <div class="card-glow" aria-hidden="true"></div>
+      <span class="card-emoji">🥊</span>
+      <h2>BOXING</h2>
+      <p>Punch, dodge &amp; combo your way to victory</p>
+      <div class="card-controls">
+        <code>WASD + G/H</code> <span>vs</span> <code>↑↓←→ + K/L</code>
+      </div>
+      <span class="badge">2 PLAYER</span>
+    </a>
+
+    <!-- Racing -->
+    <a href="games/racing/index.html" class="game-card card-racing" tabindex="0">
+      <div class="card-glow" aria-hidden="true"></div>
+      <span class="card-emoji">🏎</span>
+      <h2>RACING</h2>
+      <p>Burn rubber on a full circuit — 3 laps to win</p>
+      <div class="card-controls">
+        <code>WASD</code> <span>vs</span> <code>↑↓←→</code>
+      </div>
+      <span class="badge">2 PLAYER</span>
+    </a>
+
+    <!-- Tic Tac Toe -->
+    <a href="games/tictactoe/index.html" class="game-card card-ttt" tabindex="0">
+      <div class="card-glow" aria-hidden="true"></div>
+      <span class="card-emoji">⚔️</span>
+      <h2>TIC TAC TOE</h2>
+      <p>Classic 3-in-a-row — best of 5 rounds</p>
+      <div class="card-controls">
+        <code>Click / Tap</code>
+      </div>
+      <span class="badge">2 PLAYER</span>
+    </a>
+
+    <!-- Ping Pong -->
+    <a href="games/pingpong/index.html" class="game-card card-pong" tabindex="0">
+      <div class="card-glow" aria-hidden="true"></div>
+      <span class="card-emoji">🏓</span>
+      <h2>PING PONG</h2>
+      <p>Retro pong with spin and increasing speed</p>
+      <div class="card-controls">
+        <code>W / S</code> <span>vs</span> <code>↑ / ↓</code>
+      </div>
+      <span class="badge">2 PLAYER</span>
+    </a>
+
+    <!-- Connect Four -->
+    <a href="games/connectfour/index.html" class="game-card card-c4" tabindex="0">
+      <div class="card-glow" aria-hidden="true"></div>
+      <span class="card-emoji">🔴</span>
+      <h2>CONNECT FOUR</h2>
+      <p>Drop discs and connect 4 in a row — best of 5</p>
+      <div class="card-controls">
+        <code>Click / 1–7 keys</code>
+      </div>
+      <span class="badge">2 PLAYER</span>
+    </a>
+
+    <!-- Battleship -->
+    <a href="games/battleship/index.html" class="game-card card-bs" tabindex="0">
+      <div class="card-glow" aria-hidden="true"></div>
+      <span class="card-emoji">⚓</span>
+      <h2>BATTLESHIP</h2>
+      <p>Place your fleet and sink the enemy — pass &amp; play</p>
+      <div class="card-controls">
+        <code>Click to fire</code>
+      </div>
+      <span class="badge">2 PLAYER</span>
+    </a>
+
+    <!-- Mystery Wheel — spans 2 cols -->
+    <div class="game-card card-mystery" id="mystery-card" tabindex="0"
+         role="button" aria-label="Spin the wheel to reveal a hidden game"
+         onclick="openWheel()" onkeydown="if(event.key==='Enter')openWheel()">
+      <div class="card-glow" aria-hidden="true"></div>
+      <span class="card-emoji spin-anim">🎡</span>
+      <h2>MYSTERY SPIN</h2>
+      <p>Two secret games hide behind the wheel — dare to spin?</p>
+      <span class="badge badge-mystery">SURPRISE!</span>
+    </div>
+
+  </main>
+
+  <!-- ───────────────── WHEEL MODAL ───────────────── -->
+  <div id="wheel-overlay" class="wheel-overlay" role="dialog" aria-modal="true" aria-label="Spin the Wheel">
+    <div class="wheel-modal">
+      <button class="close-btn" onclick="closeWheel()" aria-label="Close">✕</button>
+      <h2 class="wheel-heading">SPIN THE WHEEL</h2>
+      <p class="wheel-hint">Click SPIN to reveal your hidden game!</p>
+
+      <div class="wheel-wrap">
+        <div class="wheel-pointer" aria-hidden="true">▼</div>
+        <canvas id="wheelCanvas" width="320" height="320"></canvas>
+      </div>
+
+      <button id="spinBtn" class="spin-btn" onclick="doSpin()">S P I N !</button>
+
+      <p id="wheel-result" class="wheel-result" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <script src="scripts/wheel.js"></script>
+</body>
+</html>

@@ -1,0 +1,416 @@
+// ============================================================
+//  hub.scss — Game Hub Main Stylesheet (SCSS Source)
+//  Compiled to css/hub.css via: sass src/hub.scss css/hub.css
+//  DO NOT edit hub.css directly — edit this file instead.
+// ============================================================
+
+// ─── Color Variables ─────────────────────────────────────────
+$primary:       #bf5fff;   // Purple  — Connect Four accent
+$secondary:     #ff8c00;   // Orange  — Battleship accent
+$accent:        #00d4ff;   // Cyan    — Racing / Ping Pong
+$success:       #39ff14;   // Neon green — win state
+$danger:        #ff3c5a;   // Red     — error / loss state
+$dark-bg:       #0d0d1a;   // Deep navy background
+$card-bg:       #16213e;   // Card background
+$card-border:   #1a1a3e;   // Card default border
+$text-primary:  #e8e8f0;   // Main text
+$text-muted:    #8888aa;   // Muted / label text
+
+// ─── Typography ──────────────────────────────────────────────
+$font-main:  'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+$font-mono:  'Courier New', Courier, monospace;
+$font-size-base: 16px;
+
+// ─── Spacing ─────────────────────────────────────────────────
+$spacing-xs:  4px;
+$spacing-sm:  8px;
+$spacing-md:  16px;
+$spacing-lg:  32px;
+$spacing-xl:  64px;
+
+// ─── Border Radii ────────────────────────────────────────────
+$radius-sm:   6px;
+$radius-md:   12px;
+$radius-lg:   20px;
+$radius-pill: 9999px;
+
+// ─── Transition ──────────────────────────────────────────────
+$transition-fast:   0.15s ease;
+$transition-normal: 0.3s ease;
+
+// ─── Per-card accent colors (used in @for loop below) ────────
+$card-colors: (
+  1: #bf5fff,   // boxing    — purple
+  2: #ff8c00,   // racing    — orange
+  3: #00d4ff,   // tictactoe — cyan
+  4: #39ff14,   // pingpong  — neon green
+  5: #ff3c5a,   // connectfour — red
+  6: #ffd700,   // battleship — gold
+);
+
+// ─── Mixins ──────────────────────────────────────────────────
+
+/// glow($color) — adds a colored box-shadow glow effect
+/// Usage: @include glow($primary);
+@mixin glow($color, $intensity: 1) {
+  box-shadow:
+    0 0 #{8px * $intensity}  rgba($color, 0.4),
+    0 0 #{20px * $intensity} rgba($color, 0.25),
+    0 0 #{40px * $intensity} rgba($color, 0.1);
+}
+
+/// flex-center — centers children both axes
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/// card-base — shared card styling
+@mixin card-base {
+  background: $card-bg;
+  border-radius: $radius-md;
+  border: 1px solid $card-border;
+  padding: $spacing-md;
+  transition: transform $transition-normal, box-shadow $transition-normal;
+}
+
+/// button-style($bg, $fg) — styled button
+@mixin button-style($bg: $primary, $fg: #fff) {
+  background: $bg;
+  color: $fg;
+  border: none;
+  border-radius: $radius-pill;
+  padding: $spacing-sm $spacing-lg;
+  font-family: $font-main;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: filter $transition-fast, transform $transition-fast;
+
+  &:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    filter: brightness(0.95);
+  }
+}
+
+// ─── Global Reset / Base ─────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: $font-size-base;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-main;
+  background-color: $dark-bg;
+  color: $text-primary;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+// ─── Hub Layout ──────────────────────────────────────────────
+.hub-header {
+  @include flex-center;
+  flex-direction: column;
+  padding: $spacing-xl $spacing-md $spacing-lg;
+  text-align: center;
+
+  h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, $primary, $secondary, $accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  p.subtitle {
+    margin-top: $spacing-sm;
+    color: $text-muted;
+    font-size: 1.1rem;
+  }
+}
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: $spacing-lg;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-md $spacing-xl;
+}
+
+// ─── Game Cards ──────────────────────────────────────────────
+.game-card {
+  @include card-base;
+  @include flex-center;
+  flex-direction: column;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: $text-primary;
+
+  // Shimmer overlay on hover
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0.06) 50%,
+      rgba(255, 255, 255, 0) 60%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+  }
+
+  &:hover {
+    transform: translateY(-6px) scale(1.02);
+    @include glow($primary);
+    border-color: $primary;
+
+    &::before {
+      transform: translateX(100%);
+    }
+
+    .game-card__icon {
+      transform: scale(1.15) rotate(-4deg);
+    }
+
+    .game-card__title {
+      color: $primary;
+    }
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(1.01);
+  }
+
+  // Modifier: mystery card
+  &--mystery {
+    border-color: $secondary;
+    background: linear-gradient(135deg, $card-bg, darken($card-bg, 4%));
+
+    &:hover {
+      @include glow($secondary);
+      border-color: $secondary;
+
+      .game-card__title {
+        color: $secondary;
+      }
+    }
+  }
+
+  // Elements inside a card
+  &__icon {
+    font-size: 3.5rem;
+    margin-bottom: $spacing-md;
+    transition: transform $transition-normal;
+    line-height: 1;
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: $spacing-xs;
+    transition: color $transition-normal;
+  }
+
+  &__desc {
+    font-size: 0.88rem;
+    color: $text-muted;
+    line-height: 1.5;
+  }
+
+  &__badge {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    background: $success;
+    color: $dark-bg;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px $spacing-sm;
+    border-radius: $radius-pill;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+}
+
+// ─── Per-card border color overrides (@for loop) ─────────────
+// Generates: .game-card:nth-child(1) { border-color: ... } etc.
+@for $i from 1 through 6 {
+  .game-card:nth-child(#{$i}) {
+    $color: map-get($card-colors, $i);
+    border-top: 3px solid $color;
+
+    &:hover {
+      @include glow($color);
+      border-color: $color;
+
+      .game-card__title {
+        color: $color;
+      }
+    }
+  }
+}
+
+// ─── Buttons ─────────────────────────────────────────────────
+.btn {
+  @include button-style;
+
+  &--secondary {
+    @include button-style($secondary);
+  }
+
+  &--outline {
+    background: transparent;
+    border: 2px solid $primary;
+    color: $primary;
+    border-radius: $radius-pill;
+    padding: $spacing-sm $spacing-lg;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background $transition-fast, color $transition-fast;
+
+    &:hover {
+      background: $primary;
+      color: #fff;
+    }
+  }
+}
+
+// ─── Wheel Overlay ───────────────────────────────────────────
+#wheel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba($dark-bg, 0.92);
+  @include flex-center;
+  flex-direction: column;
+  gap: $spacing-md;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $transition-normal;
+
+  &.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    color: $secondary;
+    @include glow($secondary);
+    text-align: center;
+  }
+
+  #wheel-canvas {
+    border-radius: 50%;
+    @include glow($primary, 1.5);
+  }
+
+  #wheel-result {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: $success;
+    display: none;
+    @include glow($success);
+    text-align: center;
+  }
+
+  .wheel-buttons {
+    @include flex-center;
+    gap: $spacing-md;
+  }
+}
+
+// ─── Scoreboard ──────────────────────────────────────────────
+.scoreboard {
+  @include flex-center;
+  gap: $spacing-xl;
+  padding: $spacing-md $spacing-lg;
+  background: $card-bg;
+  border-radius: $radius-md;
+  border: 1px solid $card-border;
+  margin: $spacing-md auto;
+  max-width: 400px;
+
+  .score-player {
+    text-align: center;
+
+    .score-name {
+      font-size: 0.85rem;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .score-value {
+      font-size: 2.5rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-top: $spacing-xs;
+
+      &--p1 { color: $primary; }
+      &--p2 { color: $secondary; }
+    }
+  }
+
+  .score-divider {
+    font-size: 1.5rem;
+    color: $text-muted;
+  }
+}
+
+// ─── Footer ──────────────────────────────────────────────────
+.hub-footer {
+  text-align: center;
+  padding: $spacing-lg;
+  color: $text-muted;
+  font-size: 0.85rem;
+  border-top: 1px solid $card-border;
+
+  a {
+    color: $primary;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// ─── Utility classes ─────────────────────────────────────────
+.text-center  { text-align: center; }
+.text-muted   { color: $text-muted; }
+.mt-sm        { margin-top: $spacing-sm; }
+.mt-md        { margin-top: $spacing-md; }
+.mt-lg        { margin-top: $spacing-lg; }
+.hidden       { display: none !important; }
+.sr-only      {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}

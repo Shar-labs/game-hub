@@ -1,0 +1,15 @@
+{
+  "name": "game-hub",
+  "version": "1.0.0",
+  "description": "6 two-player browser games built with multiple programming languages",
+  "scripts": {
+    "build": "python3 build.py",
+    "typecheck": "tsc --noEmit",
+    "start": "python3 -m http.server 8080"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "keywords": ["games", "2player", "javascript", "typescript", "wasm", "rust"],
+  "license": "MIT"
+}
