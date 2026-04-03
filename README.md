@@ -22,7 +22,7 @@ Visit the live site: **https://YOUR-USERNAME.github.io/game-hub/**
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR-USERNAME/game-hub.git
+git clone https://github.com/Sharjeel-labs/game-hub.git
 cd game-hub
 
 # Run the setup script (checks tools, runs build script)
