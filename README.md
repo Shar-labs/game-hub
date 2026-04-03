@@ -16,7 +16,7 @@ A collection of **6 two-player browser games** built with a ridiculous number of
 
 ## 🌐 Play Online
 
-Visit the live site: **https://YOUR-USERNAME.github.io/game-hub/**
+Visit the live site: **https://Sharjeel-labs.github.io/game-hub/**
 
 ## 💻 Run Locally
 
