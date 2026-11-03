@@ -16,13 +16,13 @@ A collection of **6 two-player browser games** built with a ridiculous number of
 
 ## 🌐 Play Online
 
-Visit the live site: **https://Sharjeel-labs.github.io/game-hub/**
+Visit the live site: **https://Shar-labs.github.io/game-hub/**
 
 ## 💻 Run Locally
 
 ```bash
 # Clone the repo
-git clone https://github.com/Sharjeel-labs/game-hub.git
+git clone https://github.com/Shar-labs/game-hub.git
 cd game-hub
 
 # Run the setup script (checks tools, runs build script)
